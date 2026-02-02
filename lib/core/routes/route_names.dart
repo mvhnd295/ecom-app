@@ -1,0 +1,6 @@
+
+class RouteNames {
+  RouteNames._();
+
+
+}

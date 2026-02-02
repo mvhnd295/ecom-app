@@ -1,0 +1,67 @@
+name: fitflow
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.11.0-16.0.dev
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons:
+  url_launcher:
+  animations:
+  form_field_validator:
+  cached_network_image:
+  flutter_rating_bar:
+  flutter_widget_from_html_core:
+  shared_preferences:
+  hive:
+  hive_flutter:
+  riverpod:
+  flutter_riverpod:
+  dio: ^5.9.1
+  flutter_secure_storage:
+  get_it:
+  logger:
+  connectivity_plus:
+  intl:
+  go_router: 
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/flags/
+    - assets/illustration/
+    - assets/logo/
+    - assets/screens/
+  
+  fonts:
+    - family: Plus Jakarta
+      fonts:
+        - asset: assets/fonts/PlusJakartaDisplay-Bold.otf
+          weight: 700
+        - asset: assetts/fonts/PlusJakartaDisplay-Medium.otf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaDisplay-Regular.otf
+    - family: Grandis Extended
+      fonts:
+        - asset: assets/fonts/GrandisExtended-Black.ttf
+          weight: 900
+        - asset: assets/fonts/GrandisExtended-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/GrandisExtended-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/GrandisExtended-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/GrandisExtended-Thin.ttf
+          weight: 300
