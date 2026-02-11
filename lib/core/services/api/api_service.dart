@@ -36,18 +36,28 @@ class ApiService {
     }
   }
 
-  /// Get user profile
-  Future<Map<String, dynamic>> getUserProfile() async {
-    try {
-      
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
-  
+  // /// Get user profile
+  // Future<Map<String, dynamic>> getUserProfile() async {
+  //   try {
+  //     final token = await cacheService.getSessionToken();
+  //     if (token == null) {
+  //       throw 'No session token found.';
+  //     }
+  //     final userId = cacheService.getUserId();
+  //     final response = await _dio.get(ApiEndpoints.getUserById.replaceFirst(
+  //       ':id',
+  //       userId ?? '',
+  //     ));
+  //     return response.data;
+  //   } on DioException catch (e) {
+  //     throw _handleError(e);
+  //   }
+  // }
+
   String _handleError(DioException e) {
     return switch (e.type) {
-      DioExceptionType.connectionTimeout => 'Connection timeout. Please try again.',
+      DioExceptionType.connectionTimeout =>
+        'Connection timeout. Please try again.',
       DioExceptionType.sendTimeout => 'Request timeout. Please try again.',
       DioExceptionType.receiveTimeout => 'Response timeout. Please try again.',
       DioExceptionType.badResponse => _handleBadResponse(e),
@@ -75,4 +85,5 @@ class ApiService {
     return message ?? 'Something went wrong.';
   }
 }
+
 final apiService = ApiService();

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:fitflow/core/common/singletons/cache.dart';
+import 'package:fitflow/core/constants/app_constants.dart';
 import 'package:flutter/foundation.dart';
 
 class DioClient {
@@ -7,7 +8,7 @@ class DioClient {
   DioClient._() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: "",
+        baseUrl: "$AppConstants.baseUrl",
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         sendTimeout: const Duration(seconds: 30),
