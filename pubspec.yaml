@@ -21,18 +21,46 @@ dependencies:
   hive_flutter:
   riverpod:
   flutter_riverpod:
-  dio: ^5.9.1
+  dio:
   flutter_secure_storage:
   get_it:
   logger:
   connectivity_plus:
   intl:
-  go_router: 
+  go_router:
+  shimmer: 
+  package_info_plus: 
+  in_app_review: 
+  workmanager: 
+  flutter_tts: 
+  uuid:
+  synchronized: 
+  local_auth: 
+  riverpod_annotation: 
+  fpdart: 
+  golden_toolkit: 
+  web_socket_channel: 
+  flutter_form_builder: 
+  form_builder_validators:
+  equatable:
+  freezed_annotation:
+  json_annotation:
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  flutter_lints: 
+  build_runner: 
+  freezed: 
+  json_serializable: 
+  riverpod_generator: 
+  flutter_gen_runner: 
+  riverpod_lint: 
+  flutter_launcher_icons: 
+  mocktail:
+  custom_lint:
+  change_app_package_name: 
+
 
 flutter:
   uses-material-design: true

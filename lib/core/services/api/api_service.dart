@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:fitflow/core/common/singletons/dio_client.dart';
-import 'package:fitflow/core/services/api/api_endpoints.dart';
+import 'package:fitflow/core/error/failures.dart';
+import 'package:fpdart/fpdart.dart';
 
 class ApiService {
   final Dio _dio = dioClient.dio;
@@ -10,79 +11,72 @@ class ApiService {
   static final ApiService _instance = ApiService._();
   factory ApiService() => _instance;
 
-  /// Verify if current token is valid
-  Future<bool> verifyToken() async {
+  // Generic GET request
+  Future<Either<Failure, T>> get<T>(String endpoint, {Map<String, dynamic>? queryParameters}) async {
     try {
-      final response = await _dio.get(ApiEndpoints.login);
-      return response.statusCode == 200;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /// Login
-  Future<Map<String, dynamic>> login({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      final response = await _dio.post(
-        ApiEndpoints.login,
-        data: {'email': email, 'password': password},
-      );
-      return response.data;
+      final response = await _dio.get(endpoint, queryParameters: queryParameters);
+      return Right(response.data);
     } on DioException catch (e) {
-      throw _handleError(e);
+      return Left(_handleError(e));
+    }
+  }
+  // Generic POST request
+  Future<Either<Failure, T>> post<T>(String endpoint, {Map<String, dynamic>? data}) async {
+    try {
+      final response = await _dio.post(endpoint, data: data);
+      return Right(response.data);
+    } on DioException catch (e) {
+      return Left(_handleError(e));
+    }
+  }
+  // Generic PUT request
+  Future<Either<Failure, T>> put<T>(String endpoint, {Map<String, dynamic>? data}) async {
+    try {
+      final response = await _dio.put(endpoint, data: data);
+      return Right(response.data);
+    } on DioException catch (e) {
+      return Left(_handleError(e));
+    }
+  }
+  // Generic DELETE request
+  Future<Either<Failure, T>> delete<T>(String endpoint) async {
+    try {
+      final response = await _dio.delete(endpoint);
+      return Right(response.data);
+    } on DioException catch (e) {
+      return Left(_handleError(e));
     }
   }
 
-  // /// Get user profile
-  // Future<Map<String, dynamic>> getUserProfile() async {
-  //   try {
-  //     final token = await cacheService.getSessionToken();
-  //     if (token == null) {
-  //       throw 'No session token found.';
-  //     }
-  //     final userId = cacheService.getUserId();
-  //     final response = await _dio.get(ApiEndpoints.getUserById.replaceFirst(
-  //       ':id',
-  //       userId ?? '',
-  //     ));
-  //     return response.data;
-  //   } on DioException catch (e) {
-  //     throw _handleError(e);
-  //   }
-  // }
 
-  String _handleError(DioException e) {
+  Failure _handleError(DioException e) {
     return switch (e.type) {
-      DioExceptionType.connectionTimeout =>
-        'Connection timeout. Please try again.',
-      DioExceptionType.sendTimeout => 'Request timeout. Please try again.',
-      DioExceptionType.receiveTimeout => 'Response timeout. Please try again.',
+      DioExceptionType.connectionTimeout => ServerFailure(message: 'Connection timeout. Please try again.'),
+      DioExceptionType.sendTimeout => ServerFailure(message: 'Request timeout. Please try again.'),
+      DioExceptionType.receiveTimeout => ServerFailure(message: 'Response timeout. Please try again.'),
       DioExceptionType.badResponse => _handleBadResponse(e),
-      DioExceptionType.cancel => 'Request was cancelled.',
-      DioExceptionType.unknown => 'An unexpected error occurred.',
-      DioExceptionType.badCertificate => 'Bad certificate error.',
-      _ => 'Network Error. Please check your connection.',
+      DioExceptionType.cancel => ServerFailure(message: 'Request was cancelled.'),
+      DioExceptionType.unknown => UnknownFailure(message: 'An unexpected error occurred.'),
+      DioExceptionType.badCertificate => ServerFailure(message: 'Bad certificate error.'),
+      _ => ServerFailure(message: 'Network Error. Please check your connection.'),
     };
   }
 
-  String _handleBadResponse(DioException e) {
+  Failure _handleBadResponse(DioException e) {
     final statusCode = e.response?.statusCode;
     final message = e.response?.data['message'];
     if (statusCode == 400) {
-      return message ?? 'Bad request.';
+      return InputFailure(message: message ?? 'Bad request.');
     } else if (statusCode == 401) {
-      return message ?? 'Unauthorized. Please login again.';
+      return UnauthorizedFailure(message: message ?? 'Unauthorized. Please login again.');
     } else if (statusCode == 403) {
-      return message ?? 'Forbidden access.';
+      return PermissionFailure(message: message ?? 'Forbidden access.');
     } else if (statusCode == 404) {
-      return message ?? 'Resource not found.';
-    } else if (statusCode == 500) {
-      return message ?? 'Internal server error. Please try later.';
+      return ServerFailure(message: message ?? 'Resource not found.');
+    } else if (statusCode == 500 || statusCode == 501 || statusCode == 502 || statusCode == 503) {
+      return ServerFailure(message: message ?? 'Internal server error. Please try later.');
     }
-    return message ?? 'Something went wrong.';
+    return ServerFailure(message: message ?? 'Something went wrong.');
   }
 }
 
