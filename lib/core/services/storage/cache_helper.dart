@@ -21,6 +21,7 @@ class CacheHelper {
     if (_isInitialized) return;
 
     await Hive.initFlutter();
+    _prefs = await SharedPreferences.getInstance();
 
     _userBox = await Hive.openBox(StorageKeys.userBox);
     _cacheBox = await Hive.openBox(StorageKeys.cacheBox);
@@ -43,6 +44,14 @@ class CacheHelper {
 
   Future<bool> setFirstLaunch(bool isFirst) {
     return _prefs.setBool(StorageKeys.isFirstLaunch, isFirst);
+  }
+
+  bool isFirstTimer() {
+    return _prefs.getBool(StorageKeys.isFirstLaunch) ?? true;
+  }
+
+  Future<bool> markOnboardingComplete() {
+    return _prefs.setBool(StorageKeys.isFirstLaunch, false);
   }
 
   // Secure Storage Methods

@@ -1,40 +1,93 @@
+import 'package:fitflow/features/auth/domain/entities/address.dart';
 import 'package:fitflow/features/auth/domain/entities/user_entity.dart';
+import 'package:fitflow/features/auth/domain/entities/wishlist.dart';
 
 class UserModel extends UserEntity {
+  final String? passwordHash;
+  final int? resetPasswordOTP;
+  final DateTime? resetPasswordOTPExpiry;
+
   const UserModel({
     required super.id,
     required super.name,
     required super.email,
-    super.phone,
+    required super.phone,
+    super.address,
     super.avatarUrl,
-    super.isVerified,
-    super.createdAt,
+    super.isAdmin,
+    super.wishlist,
+    this.passwordHash,
+    this.resetPasswordOTP,
+    this.resetPasswordOTPExpiry,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    Address? address;
+    if (json['country'] != null ||
+        json['city'] != null ||
+        json['street'] != null) {
+      address = Address(
+        country: json['address']['country'],
+        city: json['address']['city'],
+        street: json['address']['street'],
+        postalCode: json['address']['postalCode'],
+        houseNumber: json['address']['houseNumber'],
+        apartmentNumber: json['address']['apartmentNumber'],
+      );
+    }
+    List<WishlistItem> wishlist = [];
+    if (json['wishlist'] != null) {
+      wishlist = List<WishlistItem>.from(
+        json['wishlist'].map(
+          (item) => WishlistItem(
+            productId: item['productId'].toString(),
+            productName: item['productName'],
+            productImage: item['productImage'],
+            productPrice: item['productPrice'].toDouble(),
+          ),
+        ),
+      );
+    }
     return UserModel(
-      id: json['_id'] as String? ?? json['id'] as String,
-      name: json['name'] as String,
-      email: json['email'] as String,
-      phone: json['phone'] as String?,
-      avatarUrl: json['avatar'] as String? ?? json['avatarUrl'] as String?,
-      isVerified: json['isVerified'] as bool? ?? false,
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'] as String)
+      id: json['id'],
+      name: json['name'],
+      email: json['email'],
+      phone: json['phone'],
+      address: address,
+      avatarUrl: json['avatarUrl'],
+      isAdmin: json['isAdmin'] ?? false,
+      wishlist: wishlist,
+      passwordHash: json['passwordHash'],
+      resetPasswordOTP: json['resetPasswordOTP'],
+      resetPasswordOTPExpiry: json['resetPasswordOTPExpiry'] != null
+          ? DateTime.parse(json['resetPasswordOTPExpiry'])
           : null,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+    final Map<String, dynamic> data = {
       'name': name,
       'email': email,
-      if (phone != null) 'phone': phone,
-      if (avatarUrl != null) 'avatarUrl': avatarUrl,
-      'isVerified': isVerified,
-      if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
+      'phone': phone,
+      'avatarUrl': avatarUrl,
+      'isAdmin': isAdmin,
     };
+
+    if (address != null) {
+      data.addAll({
+        'country': address!.country,
+        'city': address!.city,
+        'street': address!.street,
+        'postalCode': address!.postalCode,
+        'houseNumber': address!.houseNumber,
+        'apartmentNumber': address!.apartmentNumber,
+      });
+    }
+
+    data['wishlist'] = wishlist.map((item) => item.productId).toList();
+
+    return data;
   }
 
   factory UserModel.fromEntity(UserEntity entity) {
@@ -44,8 +97,8 @@ class UserModel extends UserEntity {
       email: entity.email,
       phone: entity.phone,
       avatarUrl: entity.avatarUrl,
-      isVerified: entity.isVerified,
-      createdAt: entity.createdAt,
+      isAdmin: entity.isAdmin,
+      wishlist: entity.wishlist,
     );
   }
 }

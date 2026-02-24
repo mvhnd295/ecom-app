@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:fitflow/core/routes/route_names.dart';
 import 'package:fitflow/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:fitflow/features/auth/presentation/providers/auth_state.dart';
-import 'package:fitflow/features/auth/presentation/views/register_view.dart';
-import 'package:fitflow/features/auth/presentation/views/forgot_password_view.dart';
 import 'package:fitflow/features/auth/presentation/widgets/auth_button.dart';
 import 'package:fitflow/features/auth/presentation/widgets/auth_text_field.dart';
 
@@ -28,7 +28,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
   void _onLogin() {
     if (_formKey.currentState?.validate() ?? false) {
-      ref.read(authProvider.notifier).login(
+      ref
+          .read(authProvider.notifier)
+          .login(
             email: _emailCtrl.text.trim(),
             password: _passwordCtrl.text.trim(),
           );
@@ -51,10 +53,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
         );
       }
       if (next is AuthAuthenticated) {
-        // TODO: Navigate to home screen via your router
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Welcome back!')),
-        );
+        // Navigate to home screen
+        context.go(RouteNames.home);
       }
     });
 
@@ -106,7 +106,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
                   prefixIcon: const Icon(Icons.lock_outline),
                   validator: (v) {
                     if (v == null || v.isEmpty) return 'Password is required.';
-                    if (v.length < 6) return 'Password must be at least 6 characters.';
+                    if (v.length < 6)
+                      return 'Password must be at least 6 characters.';
                     return null;
                   },
                 ),
@@ -114,12 +115,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ForgotPasswordView(),
-                      ),
-                    ),
+                    onPressed: () => context.push(RouteNames.forgotPassword),
                     child: Text(
                       'Forgot Password?',
                       style: TextStyle(color: theme.colorScheme.primary),
@@ -141,10 +137,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                       style: theme.textTheme.bodyMedium,
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const RegisterView()),
-                      ),
+                      onTap: () => context.push(RouteNames.register),
                       child: Text(
                         'Create Account',
                         style: TextStyle(

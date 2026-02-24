@@ -1,7 +1,7 @@
 import 'package:fitflow/core/common/singletons/cache.dart';
 import 'package:fitflow/core/di/injection_container.dart' as di;
 import 'package:fitflow/core/res/styles/theme/app_theme.dart';
-import 'package:fitflow/features/auth/presentation/views/splash_screen.dart';
+import 'package:fitflow/core/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,26 +11,24 @@ void main() async {
   await cacheService.init();
   await di.init();
 
-  runApp(
-    const ProviderScope(
-      child: MainApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: MainApp()));
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = cacheService.getThemeMode();
-    return MaterialApp(
+    final goRouter = ref.watch(goRouterProvider);
+
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Ebuy App',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      home: const SplashScreen(),
+      routerConfig: goRouter,
     );
   }
 }

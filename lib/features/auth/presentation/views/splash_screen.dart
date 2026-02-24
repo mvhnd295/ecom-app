@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:fitflow/core/common/singletons/cache.dart';
+import 'package:fitflow/core/routes/route_names.dart';
 import 'package:fitflow/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:fitflow/features/auth/presentation/providers/auth_state.dart';
-import 'package:fitflow/features/auth/presentation/views/login_view.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -15,9 +17,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Check if there is a valid cached session
+    // Check if this is first time user or if there is a valid cached session
     Future.microtask(() {
-      ref.read(authProvider.notifier).checkCurrentUser();
+      final isFirstTimer = cacheService.isFirstTimer();
+      if (isFirstTimer) {
+        // Show onboarding screen for first-time users
+        if (mounted) {
+          context.go(RouteNames.onboarding);
+        }
+      } else {
+        // Check existing session for returning users
+        ref.read(authProvider.notifier).checkCurrentUser();
+      }
     });
   }
 
@@ -27,16 +38,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     ref.listen<AuthState>(authProvider, (_, next) {
       if (!mounted) return;
+      final isFirstTimer = cacheService.isFirstTimer();
       if (next is AuthAuthenticated) {
-        // TODO: Navigate to home screen via your router
-        // For now navigate to LoginView as a placeholder
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginView()),
-        );
+        // Navigate to home screen
+        context.go(RouteNames.home);
       } else if (next is AuthUnauthenticated || next is AuthError) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginView()),
-        );
+        // If first timer and onboarding not shown, show it
+        if (isFirstTimer) {
+          context.go(RouteNames.onboarding);
+        } else {
+          context.go(RouteNames.login);
+        }
       }
     });
 
