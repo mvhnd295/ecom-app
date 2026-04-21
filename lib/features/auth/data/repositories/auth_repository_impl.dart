@@ -30,7 +30,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final data = await remoteDataSource.login(email: email, password: password);
       final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
-      final token = data['token'] as String;
+      final token = data['accessToken'] as String;
       final refreshToken = data['refreshToken'] as String?;
       await localDataSource.cacheUser(
         user: user,
@@ -64,14 +64,9 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
         phone: phone,
       );
-      final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
-      final token = data['token'] as String;
-      final refreshToken = data['refreshToken'] as String?;
-      await localDataSource.cacheUser(
-        user: user,
-        token: token,
-        refreshToken: refreshToken,
-      );
+      // Backend register returns flat user data (no nested 'user' key, no tokens).
+      // Auto-login after registration by calling login.
+      final user = UserModel.fromJson(Map<String, dynamic>.from(data));
       return Right(user);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));

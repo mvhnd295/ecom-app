@@ -1,6 +1,6 @@
 name: fitflow
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -28,39 +28,39 @@ dependencies:
   connectivity_plus:
   intl:
   go_router:
-  shimmer: 
-  package_info_plus: 
-  in_app_review: 
-  workmanager: 
-  flutter_tts: 
+  shimmer:
+  package_info_plus:
+  in_app_review:
+  workmanager:
+  flutter_tts:
   uuid:
-  synchronized: 
-  local_auth: 
-  riverpod_annotation: 
-  fpdart: 
-  golden_toolkit: 
-  web_socket_channel: 
-  flutter_form_builder: 
+  synchronized:
+  local_auth:
+  riverpod_annotation:
+  fpdart:
+  golden_toolkit:
+  web_socket_channel:
+  flutter_form_builder:
   form_builder_validators:
   equatable:
   freezed_annotation:
   json_annotation:
+  smooth_page_indicator:
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: 
-  build_runner: 
-  freezed: 
-  json_serializable: 
-  riverpod_generator: 
-  flutter_gen_runner: 
-  riverpod_lint: 
-  flutter_launcher_icons: 
+  flutter_lints:
+  build_runner:
+  freezed:
+  json_serializable:
+  riverpod_generator:
+  flutter_gen_runner:
+  riverpod_lint:
+  flutter_launcher_icons:
   mocktail:
   custom_lint:
-  change_app_package_name: 
-
+  change_app_package_name:
 
 flutter:
   uses-material-design: true
@@ -72,7 +72,7 @@ flutter:
     - assets/illustration/
     - assets/logo/
     - assets/screens/
-  
+
   fonts:
     - family: Plus Jakarta
       fonts:

@@ -20,7 +20,7 @@ class MainApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = cacheService.getThemeMode();
-    final goRouter = ref.watch(goRouterProvider);
+    final goRouter = router;
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,

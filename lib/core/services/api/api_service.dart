@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:dio/dio.dart';
 import 'package:fitflow/core/common/singletons/dio_client.dart';
 import 'package:fitflow/core/error/failures.dart';
@@ -38,6 +40,15 @@ class ApiService {
       return Left(_handleError(e));
     }
   }
+  // Generic PATCH request
+  Future<Either<Failure, T>> patch<T>(String endpoint, {Map<String, dynamic>? data}) async {
+    try {
+      final response = await _dio.patch(endpoint, data: data);
+      return Right(response.data);
+    } on DioException catch (e) {
+      return Left(_handleError(e));
+    }
+  }
   // Generic DELETE request
   Future<Either<Failure, T>> delete<T>(String endpoint) async {
     try {
@@ -64,7 +75,7 @@ class ApiService {
 
   Failure _handleBadResponse(DioException e) {
     final statusCode = e.response?.statusCode;
-    final message = e.response?.data['message'];
+    final message = _extractErrorMessage(e.response?.data, statusCode, e.requestOptions.uri);
     if (statusCode == 400) {
       return InputFailure(message: message ?? 'Bad request.');
     } else if (statusCode == 401) {
@@ -77,6 +88,23 @@ class ApiService {
       return ServerFailure(message: message ?? 'Internal server error. Please try later.');
     }
     return ServerFailure(message: message ?? 'Something went wrong.');
+  }
+
+  /// Only trust a server-provided string when the body was parsed JSON with a
+  /// recognisable key. HTML / plain-text bodies are logged for devs and the
+  /// caller falls back to a friendly default — users should never see raw HTML.
+  String? _extractErrorMessage(dynamic data, int? status, Uri uri) {
+    if (data is Map) {
+      final value = data['message'] ?? data['error'] ?? data['detail'];
+      if (value is String && value.isNotEmpty) return value;
+    }
+    if (data != null) {
+      developer.log(
+        'Non-JSON error body ($status) from $uri: $data',
+        name: 'ApiService',
+      );
+    }
+    return null;
   }
 }
 

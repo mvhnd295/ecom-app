@@ -11,6 +11,10 @@ class CacheHelper {
   late final Box _cacheBox;
   final _secureStorage = const FlutterSecureStorage();
 
+  String? _cachedSessionToken;
+  String? _cachedRefreshToken;
+  // String? _cachedUserId;
+
   CacheHelper._();
   static final CacheHelper _instance = CacheHelper._();
   factory CacheHelper() => _instance;
@@ -20,13 +24,28 @@ class CacheHelper {
   Future<void> init() async {
     if (_isInitialized) return;
 
-    await Hive.initFlutter();
     _prefs = await SharedPreferences.getInstance();
+    await Hive.initFlutter();
 
     _userBox = await Hive.openBox(StorageKeys.userBox);
     _cacheBox = await Hive.openBox(StorageKeys.cacheBox);
+    _cachedSessionToken = await _secureStorage.read(
+      key: StorageKeys.sessionToken,
+    );
+    _cachedRefreshToken = await _secureStorage.read(
+      key: StorageKeys.refreshToken,
+    );
     _isInitialized = true;
   }
+
+  String? get sessionToken => _cachedSessionToken;
+  String? get refreshToken => _cachedRefreshToken;
+  String? get userId => _userBox.get(StorageKeys.userId);
+
+  bool get isAuthenticated =>
+      _cachedSessionToken != null &&
+      _cachedRefreshToken != null &&
+      userId != null;
 
   // Shared Preferences Methods
   ThemeMode getThemeMode() {
@@ -46,21 +65,14 @@ class CacheHelper {
     return _prefs.setBool(StorageKeys.isFirstLaunch, isFirst);
   }
 
-  bool isFirstTimer() {
-    return _prefs.getBool(StorageKeys.isFirstLaunch) ?? true;
-  }
-
-  Future<bool> markOnboardingComplete() {
-    return _prefs.setBool(StorageKeys.isFirstLaunch, false);
-  }
-
   // Secure Storage Methods
-  Future<String?> getSessionToken() {
+  Future<String?>? getSessionToken() {
     return _secureStorage.read(key: StorageKeys.sessionToken);
   }
 
   Future<void> setSessionToken(String token) async {
     await _secureStorage.write(key: StorageKeys.sessionToken, value: token);
+    _cachedSessionToken = token;
   }
 
   Future<String?> getRefreshToken() {
@@ -69,6 +81,7 @@ class CacheHelper {
 
   Future<void> setRefreshToken(String token) async {
     await _secureStorage.write(key: StorageKeys.refreshToken, value: token);
+    _cachedRefreshToken = token;
   }
 
   // Hive Methods
@@ -127,5 +140,7 @@ class CacheHelper {
   Future<void> clearUserData() async {
     await _userBox.clear();
     await _secureStorage.deleteAll();
+    _cachedSessionToken = null;
+    _cachedRefreshToken = null;
   }
 }

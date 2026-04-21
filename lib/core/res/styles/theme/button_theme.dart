@@ -11,7 +11,7 @@ class ButtonThemes {
         padding: AppSpacing.p16,
         backgroundColor: AppColors.primaryColor,
         foregroundColor: Colors.white,
-        minimumSize: const Size(double.infinity, 48),
+        minimumSize: const Size(0, 48),
         shape: const RoundedRectangleBorder(
           borderRadius: AppSpacing.borderRadius12,
         ),
@@ -24,7 +24,7 @@ class ButtonThemes {
       style: TextButton.styleFrom(
         padding: AppSpacing.p16,
         foregroundColor: AppColors.primaryColor,
-        minimumSize: const Size(double.infinity, 48),
+        minimumSize: const Size(0, 48),
         shape: const RoundedRectangleBorder(
           borderRadius: AppSpacing.borderRadius12,
         ),
@@ -37,7 +37,7 @@ class ButtonThemes {
       style: OutlinedButton.styleFrom(
         padding: AppSpacing.p16,
         foregroundColor: AppColors.primaryColor,
-        minimumSize: const Size(double.infinity, 48),
+        minimumSize: const Size(0, 48),
         shape: const RoundedRectangleBorder(
           borderRadius: AppSpacing.borderRadius12,
         ),
