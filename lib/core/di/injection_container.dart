@@ -14,6 +14,10 @@ import 'package:fitflow/features/cart/data/datasources/cart_remote_data_source.d
 import 'package:fitflow/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:fitflow/features/cart/domain/repositories/cart_repository.dart';
 import 'package:fitflow/features/cart/domain/usecases/cart_usecases.dart';
+import 'package:fitflow/features/wishlist/data/datasources/wishlist_remote_data_source.dart';
+import 'package:fitflow/features/wishlist/data/repositories/wishlist_repository_impl.dart';
+import 'package:fitflow/features/wishlist/domain/repositories/wishlist_repository.dart';
+import 'package:fitflow/features/wishlist/domain/usecases/wishlist_usecases.dart';
 import 'package:fitflow/features/categories/data/datasources/category_remote_data_source.dart';
 import 'package:fitflow/features/categories/data/repositories/category_repository_impl.dart';
 import 'package:fitflow/features/categories/domain/repositories/category_repository.dart';
@@ -106,4 +110,19 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UpdateCartQuantityUsecase(sl()));
   sl.registerLazySingleton(() => SetCartQuantityUsecase(sl()));
   sl.registerLazySingleton(() => UpdateCartItemUsecase(sl()));
+
+  // ── Wishlist — Data Sources ───────────────────────────────────────────────
+  sl.registerLazySingleton<WishlistRemoteDataSource>(
+    () => WishlistRemoteDataSourceImpl(apiService: sl()),
+  );
+
+  // ── Wishlist — Repository ─────────────────────────────────────────────────
+  sl.registerLazySingleton<WishlistRepository>(
+    () => WishlistRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+
+  // ── Wishlist — Use Cases ──────────────────────────────────────────────────
+  sl.registerLazySingleton(() => GetWishlistUsecase(sl()));
+  sl.registerLazySingleton(() => AddToWishlistUsecase(sl()));
+  sl.registerLazySingleton(() => RemoveFromWishlistUsecase(sl()));
 }

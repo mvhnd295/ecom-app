@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fitflow/core/common/widgets/app_error_view.dart';
 import 'package:fitflow/core/extensions/context_extension.dart';
 import 'package:fitflow/core/res/spacing.dart';
 import 'package:fitflow/core/res/styles/colors.dart';
@@ -6,6 +7,8 @@ import 'package:fitflow/features/cart/presentation/providers/cart_notifier.dart'
 import 'package:fitflow/features/products/domain/entities/product_entity.dart';
 import 'package:fitflow/features/products/presentation/providers/product_detail_notifier.dart';
 import 'package:fitflow/features/products/presentation/providers/product_detail_state.dart';
+import 'package:fitflow/features/wishlist/presentation/providers/wishlist_notifier.dart';
+import 'package:fitflow/features/wishlist/presentation/providers/wishlist_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,6 +27,9 @@ class _ProductDetailViewState extends ConsumerState<ProductDetailView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(productDetailProvider.notifier).load(widget.productId);
+      if (ref.read(wishlistProvider) is WishlistInitial) {
+        ref.read(wishlistProvider.notifier).load();
+      }
     });
   }
 
@@ -33,7 +39,7 @@ class _ProductDetailViewState extends ConsumerState<ProductDetailView> {
     return switch (state) {
       ProductDetailLoaded(:final product) => _Loaded(product: product),
       ProductDetailError(:final message) => Scaffold(
-          body: _ErrorView(
+          body: AppErrorView(
             message: message,
             onRetry: () => ref
                 .read(productDetailProvider.notifier)
@@ -58,6 +64,7 @@ class _LoadedState extends ConsumerState<_Loaded> {
   String? _selectedColor;
   String? _selectedSize;
   bool _adding = false;
+  bool _togglingWishlist = false;
 
   List<String> get _gallery {
     final product = widget.product;
@@ -65,6 +72,17 @@ class _LoadedState extends ConsumerState<_Loaded> {
       product.image,
       ...product.images.where((url) => url != product.image),
     ];
+  }
+
+  Future<void> _toggleWishlist() async {
+    if (_togglingWishlist) return;
+    setState(() => _togglingWishlist = true);
+    final error = await ref
+        .read(wishlistProvider.notifier)
+        .toggle(widget.product.id);
+    if (!mounted) return;
+    setState(() => _togglingWishlist = false);
+    if (error != null) _showSnack(error, isError: true);
   }
 
   Future<void> _addToCart() async {
@@ -118,9 +136,19 @@ class _LoadedState extends ConsumerState<_Loaded> {
             onTap: () => Navigator.of(context).maybePop(),
           ),
           actions: [
-            _CircleIconButton(
-              icon: Icons.favorite_outline_rounded,
-              onTap: () {},
+            Builder(
+              builder: (context) {
+                final wishlistState = ref.watch(wishlistProvider);
+                final inWishlist = wishlistState is WishlistLoaded &&
+                    wishlistState.isInWishlist(widget.product.id);
+                return _CircleIconButton(
+                  icon: inWishlist
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_outline_rounded,
+                  iconColor: inWishlist ? AppColors.wishlistHeartColor : null,
+                  onTap: _togglingWishlist ? null : _toggleWishlist,
+                );
+              },
             ),
             const SizedBox(width: 8),
           ],
@@ -430,9 +458,14 @@ class _StockBadge extends StatelessWidget {
 }
 
 class _CircleIconButton extends StatelessWidget {
-  const _CircleIconButton({required this.icon, required this.onTap});
+  const _CircleIconButton({
+    required this.icon,
+    required this.onTap,
+    this.iconColor,
+  });
   final IconData icon;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -446,7 +479,7 @@ class _CircleIconButton extends StatelessWidget {
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(8),
-            child: Icon(icon, color: AppColors.blackColor),
+            child: Icon(icon, color: iconColor ?? AppColors.blackColor),
           ),
         ),
       ),
@@ -454,35 +487,3 @@ class _CircleIconButton extends StatelessWidget {
   }
 }
 
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.message, required this.onRetry});
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: AppSpacing.p24,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              size: 56,
-              color: AppColors.errorColor,
-            ),
-            AppSpacing.gapV12,
-            Text(message, textAlign: TextAlign.center),
-            AppSpacing.gapV16,
-            OutlinedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

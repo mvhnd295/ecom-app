@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fitflow/core/common/widgets/app_error_view.dart';
+import 'package:fitflow/core/common/widgets/inline_warning.dart';
 import 'package:fitflow/core/di/injection_container.dart';
 import 'package:fitflow/core/res/spacing.dart';
 import 'package:fitflow/core/res/styles/colors.dart';
@@ -80,7 +82,7 @@ class _CartViewState extends ConsumerState<CartView> {
       body: switch (state) {
         CartLoaded(:final items) when items.isEmpty => const _EmptyCart(),
         CartLoaded() => _LoadedCart(state: state, onError: _showError),
-        CartError(:final message) => _ErrorView(
+        CartError(:final message) => AppErrorView(
             message: message,
             onRetry: () => ref.read(cartProvider.notifier).load(),
           ),
@@ -250,9 +252,9 @@ class _CartItemTile extends StatelessWidget {
                     ),
                   ),
                   if (!item.productExists)
-                    const _InlineWarning('Product no longer available'),
+                    const InlineWarning('Product no longer available'),
                   if (item.productOutOfStock)
-                    const _InlineWarning('Out of stock'),
+                    const InlineWarning('Out of stock'),
                 ],
               ),
             ),
@@ -445,26 +447,6 @@ class _StepperButton extends StatelessWidget {
   }
 }
 
-class _InlineWarning extends StatelessWidget {
-  const _InlineWarning(this.text);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 6),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: AppColors.errorColor,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
 class _CheckoutBar extends StatelessWidget {
   const _CheckoutBar({
     required this.subtotal,
@@ -558,39 +540,6 @@ class _EmptyCart extends StatelessWidget {
               'Browse products and add some favorites.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.blackColor60),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.message, required this.onRetry});
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: AppSpacing.p24,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              size: 56,
-              color: AppColors.errorColor,
-            ),
-            AppSpacing.gapV12,
-            Text(message, textAlign: TextAlign.center),
-            AppSpacing.gapV16,
-            OutlinedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
             ),
           ],
         ),
