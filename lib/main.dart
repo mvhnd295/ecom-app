@@ -1,6 +1,7 @@
 import 'package:fitflow/core/common/singletons/cache.dart';
 import 'package:fitflow/core/common/widgets/app_logo.dart';
 import 'package:fitflow/core/di/injection_container.dart' as di;
+import 'package:fitflow/core/providers/theme_provider.dart';
 import 'package:fitflow/core/res/styles/theme/app_theme.dart';
 import 'package:fitflow/core/routes/app_router.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = cacheService.getThemeMode();
+    final themeMode = ref.watch(themeProvider);
     final goRouter = router;
 
     return MaterialApp.router(

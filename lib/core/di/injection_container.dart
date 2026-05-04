@@ -6,10 +6,13 @@ import 'package:fitflow/features/auth/data/datasources/auth_remote_data_source.d
 import 'package:fitflow/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:fitflow/features/auth/domain/repositories/auth_repository.dart';
 import 'package:fitflow/features/auth/domain/usecases/forgot_password_usecase.dart';
+import 'package:fitflow/features/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:fitflow/features/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:fitflow/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:fitflow/features/auth/domain/usecases/login_usecase.dart';
 import 'package:fitflow/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:fitflow/features/auth/domain/usecases/register_usecase.dart';
+import 'package:fitflow/features/auth/domain/usecases/update_profile_usecase.dart';
 import 'package:fitflow/features/cart/data/datasources/cart_remote_data_source.dart';
 import 'package:fitflow/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:fitflow/features/cart/domain/repositories/cart_repository.dart';
@@ -61,6 +64,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => LogoutUsecase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUsecase(sl()));
   sl.registerLazySingleton(() => ForgotPasswordUsecase(sl()));
+  sl.registerLazySingleton(() => VerifyOtpUsecase(sl()));
+  sl.registerLazySingleton(() => ResetPasswordUsecase(sl()));
+  sl.registerLazySingleton(() => UpdateProfileUsecase(sl()));
 
   // ── Products — Data Sources ───────────────────────────────────────────────
   sl.registerLazySingleton<ProductRemoteDataSource>(

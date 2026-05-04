@@ -4,6 +4,7 @@ import 'package:fitflow/features/cart/presentation/views/cart_view.dart';
 import 'package:fitflow/features/dashboard/presentation/views/dashboard_view.dart';
 import 'package:fitflow/features/home/presentation/views/home_view.dart';
 import 'package:fitflow/features/products/presentation/views/product_detail_view.dart';
+import 'package:fitflow/features/profile/presentation/views/edit_profile_view.dart';
 import 'package:fitflow/features/profile/presentation/views/profile_view.dart';
 import 'package:fitflow/features/search/presentation/views/search_view.dart';
 import 'package:fitflow/features/wishlist/presentation/views/wishlist_view.dart';
@@ -14,6 +15,8 @@ import 'package:fitflow/features/auth/presentation/views/splash_screen.dart';
 import 'package:fitflow/features/auth/presentation/views/login_view.dart';
 import 'package:fitflow/features/auth/presentation/views/register_view.dart';
 import 'package:fitflow/features/auth/presentation/views/forgot_password_view.dart';
+import 'package:fitflow/features/auth/presentation/views/verify_otp_view.dart';
+import 'package:fitflow/features/auth/presentation/views/reset_password_view.dart';
 import 'package:fitflow/features/onboarding/presentation/views/onboarding_view.dart';
 
 final router = GoRouter(
@@ -27,10 +30,11 @@ final router = GoRouter(
       return RouteNames.onboarding;
     }
 
+    // forgotPassword / verifyOtp / resetPassword are intentionally excluded so
+    // authenticated users can access the change-password flow from their profile.
     final isAuthRoute = {
       RouteNames.login,
       RouteNames.register,
-      RouteNames.forgotPassword,
     }.contains(location);
     final isOnboardingRoute = location == RouteNames.onboarding;
 
@@ -65,6 +69,14 @@ final router = GoRouter(
       builder: (_, _) => const ForgotPasswordView(),
     ),
     GoRoute(
+      path: RouteNames.verifyOtp,
+      builder: (_, state) => VerifyOtpView(email: state.extra as String),
+    ),
+    GoRoute(
+      path: RouteNames.resetPassword,
+      builder: (_, state) => ResetPasswordView(email: state.extra as String),
+    ),
+    GoRoute(
       path: RouteNames.onboarding,
       builder: (_, _) => const OnboardingView(),
     ),
@@ -73,6 +85,10 @@ final router = GoRouter(
       builder: (_, state) => ProductDetailView(
         productId: state.pathParameters['id'] ?? '',
       ),
+    ),
+    GoRoute(
+      path: RouteNames.editProfile,
+      builder: (_, __) => const EditProfileView(),
     ),
     ShellRoute(
       builder: (context, state, child) =>

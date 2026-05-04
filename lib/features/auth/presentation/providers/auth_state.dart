@@ -26,7 +26,17 @@ class AuthError extends AuthState {
   const AuthError(this.message);
 }
 
-/// Emitted after forgotPassword succeeds so the UI can show a success dialog.
+/// Emitted after forgotPassword succeeds so the UI can navigate to verify OTP.
 class AuthForgotPasswordSuccess extends AuthState {
   const AuthForgotPasswordSuccess();
+}
+
+/// Emitted after OTP verification succeeds so the UI can navigate to reset password.
+class AuthOtpVerified extends AuthState {
+  const AuthOtpVerified();
+}
+
+/// Emitted after password reset succeeds.
+class AuthPasswordResetSuccess extends AuthState {
+  const AuthPasswordResetSuccess();
 }

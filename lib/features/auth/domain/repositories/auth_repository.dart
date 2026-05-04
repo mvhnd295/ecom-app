@@ -1,5 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:fitflow/core/error/failures.dart';
+import 'package:fitflow/features/auth/domain/entities/address.dart';
 import 'package:fitflow/features/auth/domain/entities/user_entity.dart';
 
 abstract class AuthRepository {
@@ -25,4 +26,24 @@ abstract class AuthRepository {
 
   /// Send a forgot-password email.
   Future<Either<Failure, void>> forgotPassword({required String email});
+
+  /// Verify the OTP sent to the user's email.
+  Future<Either<Failure, void>> verifyOtp({
+    required String email,
+    required String otp,
+  });
+
+  /// Reset the user's password (requires prior OTP verification).
+  Future<Either<Failure, void>> resetPassword({
+    required String email,
+    required String newPassword,
+  });
+
+  /// Update the current user's profile.
+  Future<Either<Failure, UserEntity>> updateProfile({
+    required String userId,
+    required String name,
+    required String phone,
+    Address? address,
+  });
 }

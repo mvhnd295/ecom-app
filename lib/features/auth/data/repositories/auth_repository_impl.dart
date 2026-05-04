@@ -5,6 +5,7 @@ import 'package:fitflow/core/network/network_info.dart';
 import 'package:fitflow/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:fitflow/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:fitflow/features/auth/data/models/user_model.dart';
+import 'package:fitflow/features/auth/domain/entities/address.dart';
 import 'package:fitflow/features/auth/domain/entities/user_entity.dart';
 import 'package:fitflow/features/auth/domain/repositories/auth_repository.dart';
 
@@ -111,6 +112,71 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(UnknownFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> verifyOtp({
+    required String email,
+    required String otp,
+  }) async {
+    if (!await networkInfo.isConnected) {
+      return const Left(NetworkFailure(message: 'No internet connection.'));
+    }
+    try {
+      await remoteDataSource.verifyOtp(email: email, otp: otp);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(UnknownFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> resetPassword({
+    required String email,
+    required String newPassword,
+  }) async {
+    if (!await networkInfo.isConnected) {
+      return const Left(NetworkFailure(message: 'No internet connection.'));
+    }
+    try {
+      await remoteDataSource.resetPassword(email: email, newPassword: newPassword);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(UnknownFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> updateProfile({
+    required String userId,
+    required String name,
+    required String phone,
+    Address? address,
+  }) async {
+    if (!await networkInfo.isConnected) {
+      return const Left(NetworkFailure(message: 'No internet connection.'));
+    }
+    try {
+      final data = await remoteDataSource.updateProfile(
+        userId: userId,
+        name: name,
+        phone: phone,
+        address: address,
+      );
+      final user = UserModel.fromJson(data);
+      await localDataSource.updateCachedUser(user);
+      return Right(user);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(message: e.message));
     } catch (e) {
       return Left(UnknownFailure(message: e.toString()));
     }

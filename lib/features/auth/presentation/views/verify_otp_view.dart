@@ -7,27 +7,29 @@ import 'package:fitflow/features/auth/presentation/providers/auth_state.dart';
 import 'package:fitflow/features/auth/presentation/widgets/auth_button.dart';
 import 'package:fitflow/features/auth/presentation/widgets/auth_text_field.dart';
 
-class ForgotPasswordView extends ConsumerStatefulWidget {
-  const ForgotPasswordView({super.key});
+class VerifyOtpView extends ConsumerStatefulWidget {
+  final String email;
+  const VerifyOtpView({super.key, required this.email});
 
   @override
-  ConsumerState<ForgotPasswordView> createState() => _ForgotPasswordViewState();
+  ConsumerState<VerifyOtpView> createState() => _VerifyOtpViewState();
 }
 
-class _ForgotPasswordViewState extends ConsumerState<ForgotPasswordView> {
+class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
   final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
+  final _otpCtrl = TextEditingController();
 
   @override
   void dispose() {
-    _emailCtrl.dispose();
+    _otpCtrl.dispose();
     super.dispose();
   }
 
-  void _onSend() {
+  void _onVerify() {
     if (_formKey.currentState?.validate() ?? false) {
-      ref.read(authProvider.notifier).forgotPassword(
-            email: _emailCtrl.text.trim(),
+      ref.read(authProvider.notifier).verifyOtp(
+            email: widget.email,
+            otp: _otpCtrl.text.trim(),
           );
     }
   }
@@ -47,14 +49,14 @@ class _ForgotPasswordViewState extends ConsumerState<ForgotPasswordView> {
           ),
         );
       }
-      if (next is AuthForgotPasswordSuccess) {
-        context.push(RouteNames.verifyOtp, extra: _emailCtrl.text.trim());
+      if (next is AuthOtpVerified) {
+        context.push(RouteNames.resetPassword, extra: widget.email);
       }
     });
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Forgot Password'),
+        title: const Text('Verify OTP'),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -69,39 +71,37 @@ class _ForgotPasswordViewState extends ConsumerState<ForgotPasswordView> {
               children: [
                 const SizedBox(height: 16),
                 Text(
-                  'Reset Password 🔑',
+                  'Enter OTP',
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Enter your email and we\'ll send you reset instructions.',
+                  'We sent a code to ${widget.email}. It expires in 10 minutes.',
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 40),
                 AuthTextField(
-                  label: 'Email',
-                  hint: 'example@email.com',
-                  controller: _emailCtrl,
-                  keyboardType: TextInputType.emailAddress,
+                  label: 'OTP Code',
+                  hint: '123456',
+                  controller: _otpCtrl,
+                  keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.done,
-                  prefixIcon: const Icon(Icons.email_outlined),
+                  prefixIcon: const Icon(Icons.lock_clock_outlined),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return 'Email is required.';
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v)) {
-                      return 'Enter a valid email address.';
-                    }
+                    if (v == null || v.isEmpty) return 'OTP is required.';
+                    if (v.length < 4) return 'Enter the full OTP code.';
                     return null;
                   },
                 ),
                 const SizedBox(height: 32),
                 AuthButton(
-                  label: 'Send Reset Email',
+                  label: 'Verify OTP',
                   isLoading: isLoading,
-                  onPressed: _onSend,
+                  onPressed: _onVerify,
                 ),
               ],
             ),

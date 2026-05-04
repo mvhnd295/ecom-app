@@ -13,6 +13,9 @@ abstract class AuthLocalDataSource {
   /// Return the last cached user or throw [CacheException].
   Future<UserModel> getCachedUser();
 
+  /// Update only the cached user profile (without touching tokens).
+  Future<void> updateCachedUser(UserModel user);
+
   /// Clear all auth-related data from local storage.
   Future<void> clearSession();
 }
@@ -46,6 +49,11 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     } catch (_) {
       throw CacheException(message: 'Failed to parse cached user.');
     }
+  }
+
+  @override
+  Future<void> updateCachedUser(UserModel user) async {
+    await cacheHelper.setUserProfile(user.toJson());
   }
 
   @override

@@ -7,6 +7,8 @@ class RouteNames {
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
+  static const String verifyOtp = '/verify-otp';
+  static const String resetPassword = '/reset-password';
 
   // Dashboard Shell Routes
   static const String home = '/home';
@@ -17,6 +19,7 @@ class RouteNames {
 
   // Feature Routes
   static const String productDetail = '/product/:id';
+  static const String editProfile = '/profile/edit';
 
   static String productDetailPath(String id) => '/product/$id';
 }

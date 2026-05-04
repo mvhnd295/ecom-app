@@ -1,10 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitflow/core/di/injection_container.dart';
+import 'package:fitflow/features/auth/domain/entities/user_entity.dart';
 import 'package:fitflow/features/auth/domain/usecases/login_usecase.dart';
 import 'package:fitflow/features/auth/domain/usecases/register_usecase.dart';
 import 'package:fitflow/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:fitflow/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:fitflow/features/auth/domain/usecases/forgot_password_usecase.dart';
+import 'package:fitflow/features/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:fitflow/features/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:fitflow/features/auth/presentation/providers/auth_state.dart';
 
 class AuthNotifier extends Notifier<AuthState> {
@@ -13,6 +16,8 @@ class AuthNotifier extends Notifier<AuthState> {
   late final LogoutUsecase _logoutUsecase;
   late final GetCurrentUserUsecase _getCurrentUserUsecase;
   late final ForgotPasswordUsecase _forgotPasswordUsecase;
+  late final VerifyOtpUsecase _verifyOtpUsecase;
+  late final ResetPasswordUsecase _resetPasswordUsecase;
 
   @override
   AuthState build() {
@@ -21,6 +26,8 @@ class AuthNotifier extends Notifier<AuthState> {
     _logoutUsecase = sl<LogoutUsecase>();
     _getCurrentUserUsecase = sl<GetCurrentUserUsecase>();
     _forgotPasswordUsecase = sl<ForgotPasswordUsecase>();
+    _verifyOtpUsecase = sl<VerifyOtpUsecase>();
+    _resetPasswordUsecase = sl<ResetPasswordUsecase>();
     return const AuthInitial();
   }
 
@@ -71,6 +78,11 @@ class AuthNotifier extends Notifier<AuthState> {
     );
   }
 
+  // ── Update in-memory user (called after a successful profile update) ──────
+  void updateUser(UserEntity user) {
+    state = AuthAuthenticated(user);
+  }
+
   // ── Forgot Password ────────────────────────────────────────────────────────
   Future<void> forgotPassword({required String email}) async {
     state = const AuthLoading();
@@ -78,6 +90,31 @@ class AuthNotifier extends Notifier<AuthState> {
     result.fold(
       (failure) => state = AuthError(failure.message),
       (_) => state = const AuthForgotPasswordSuccess(),
+    );
+  }
+
+  // ── Verify OTP ─────────────────────────────────────────────────────────────
+  Future<void> verifyOtp({required String email, required String otp}) async {
+    state = const AuthLoading();
+    final result = await _verifyOtpUsecase(VerifyOtpParams(email: email, otp: otp));
+    result.fold(
+      (failure) => state = AuthError(failure.message),
+      (_) => state = const AuthOtpVerified(),
+    );
+  }
+
+  // ── Reset Password ─────────────────────────────────────────────────────────
+  Future<void> resetPassword({
+    required String email,
+    required String newPassword,
+  }) async {
+    state = const AuthLoading();
+    final result = await _resetPasswordUsecase(
+      ResetPasswordParams(email: email, newPassword: newPassword),
+    );
+    result.fold(
+      (failure) => state = AuthError(failure.message),
+      (_) => state = const AuthPasswordResetSuccess(),
     );
   }
 }

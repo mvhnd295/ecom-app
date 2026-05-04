@@ -95,12 +95,24 @@ class ApiService {
   /// caller falls back to a friendly default — users should never see raw HTML.
   String? _extractErrorMessage(dynamic data, int? status, Uri uri) {
     if (data is Map) {
+      // Single message field
       final value = data['message'] ?? data['error'] ?? data['detail'];
       if (value is String && value.isNotEmpty) return value;
+
+      // Validation errors array: [{field, message}, ...]
+      final errors = data['errors'];
+      if (errors is List && errors.isNotEmpty) {
+        final messages = errors
+            .whereType<Map>()
+            .map((e) => e['message'])
+            .whereType<String>()
+            .join('\n');
+        if (messages.isNotEmpty) return messages;
+      }
     }
     if (data != null) {
       developer.log(
-        'Non-JSON error body ($status) from $uri: $data',
+        'Unrecognised error body ($status) from $uri: $data',
         name: 'ApiService',
       );
     }
