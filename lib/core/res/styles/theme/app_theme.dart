@@ -30,6 +30,12 @@ class AppTheme {
       appBarTheme:  ThemeDataConfig.appBarLightTheme,
       scrollbarTheme: ThemeDataConfig.scrollbarThemeData,
       dataTableTheme: ThemeDataConfig.dataTableLightThemeData,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
     );
   }
 
@@ -55,6 +61,12 @@ class AppTheme {
       appBarTheme:  ThemeDataConfig.appBarDarkTheme,
       scrollbarTheme: ThemeDataConfig.scrollbarThemeData,
       dataTableTheme: ThemeDataConfig.dataTableDarkThemeData,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
     );
   }
 }

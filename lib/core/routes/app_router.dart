@@ -21,10 +21,13 @@ import 'package:fitflow/features/onboarding/presentation/views/onboarding_view.d
 
 final router = GoRouter(
   debugLogDiagnostics: true,
-  initialLocation: RouteNames.home,
+  initialLocation: '/',
   redirect: (context, state) {
     final cache = sl<CacheHelper>();
     final location = state.matchedLocation;
+
+    // Splash handles its own navigation — never redirect away from it.
+    if (location == '/') return null;
 
     if (cache.isFirstLaunch() && location != RouteNames.onboarding) {
       return RouteNames.onboarding;
